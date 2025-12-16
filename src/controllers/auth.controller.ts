@@ -1,32 +1,43 @@
 import { Hono } from "hono";
-import { AuthService } from "../services/auth.service.ts";
-
-const authService = new AuthService();
-
+import { register, login } from "../services/auth.service.ts";
+import { setCookie } from "hono/cookie";
 
 export const authController = new Hono();
 
 // @register
-authController.post('/register',async(data)=>{
-    try {
-        const {email,password} = await data.req.json();
+export const registerController = async (data) => {
+  try {
+    console.log("Register request received");
+    const { email, password } = await data.req.json();
+    console.log("Email:", email);
 
-        const newUser = await authService.register(email,password);
-        return data.json({user: newUser},201);
-
-    }catch(error){
-        return data.json({message: 'Registration failed'},500);
-    }
-});
+    const newUser = await register(email, password);
+    console.log("Registration successful");
+    return data.json({ message: "User registered", user: newUser }, 201);
+  } catch (error) {
+    console.error("Registration controller error:", error);
+    return data.json({ message: "Registration failed" }, 500);
+  }
+};
 
 // @login
-authController.post('/login',async(data)=>{
-    try{
-        const {email,password} = await data.req.json();
+export const loginController = async (data) => {
+  try {
+    const { email, password } = await data.req.json();
 
-        const result = await authService.login(email,password);
-        return data.json({token: result.token},200);
-    }catch(error){
-        return data.json({message: 'Invalid credentials'},401);
-    }
-})
+    const result = await login(email, password);
+
+    // Set cookie (auto-managed by browser)
+    setCookie(data, "authToken", result.token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+      maxAge: 7200, // 2 hours
+      path: "/",
+    });
+
+    return data.json({ message: "User logged in", email }, 200);
+  } catch (_error) {
+    return data.json({ message: "Invalid credentials" }, 401);
+  }
+};

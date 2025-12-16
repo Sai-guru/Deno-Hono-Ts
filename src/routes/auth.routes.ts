@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { authController } from "../controllers/auth.controller.ts";
+import { loginController,registerController } from "../controllers/auth.controller.ts";
 import type { JWTPayload } from "jose";
 
 type Variables = {
@@ -9,4 +9,5 @@ type Variables = {
 export const authRoutes = new Hono<{ Variables: Variables }>();
 
 // Public routes
-authRoutes.route("/", authController); // mounts /register and /login
+authRoutes.post("/register", registerController);
+authRoutes.post("/login", loginController);
