@@ -61,7 +61,7 @@ export default function LandingPage() {
               </div>
               <div className="flex gap-4">
                 <Button size="lg" className="px-8">
-                  Get Started
+                  Gone to Code
                 </Button>
                 <Button size="lg" variant="outline" className="px-8">
                   View Demo
