@@ -1,8 +1,10 @@
+// deno-lint-ignore-file no-unused-vars
 import { jwtVerify } from "jose";
 import { ENV } from "../config/env.ts";
 import { JWT } from "../utils/jwt.ts";
 import { sql } from "../config/db.ts";
 import { hashPassword, verifyPassword } from "../utils/hash.ts";
+import postgres from "postgres";  //just making sure postgres is imported for types
 
 // @Register
 export async function register(email: string, password: string) {
@@ -15,13 +17,13 @@ export async function register(email: string, password: string) {
     
     const hashedPass = await hashPassword(password);
 
-    const result = await sql`
+    const result : postgres.RowList<postgres.Row[]> = await sql`
       INSERT INTO users (email, password) 
       VALUES (${email}, ${hashedPass})
       RETURNING id, email
     `;
 
-    return ({messafge})
+    return ({message:"User registered successfully", user: email});
   } catch (error) {
     console.error("Registration error:", error);
     throw new Error("Registration failed");
@@ -43,7 +45,8 @@ export async function login(email: string, password: string) {
 
     const token = await JWT.sign({ id: user.id, email }, "2h");
 
-    return user rwegistered succes, email;  
+     return ({message:"User logged in successfully", user: email, token}); 
+  // deno-lint-ignore no-unused-vars
   } catch (error) {
     throw new Error("Invalid credentials");
   }

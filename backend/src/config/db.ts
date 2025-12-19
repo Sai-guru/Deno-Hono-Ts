@@ -2,7 +2,9 @@ import postgres from "postgres";
 import { ENV } from "./env.ts";
 
 // Disable prepared statements for Neon pooler compatibility
-export let sql = postgres(ENV.DATABASE_URL, {
+
+// deno-lint-ignore ban-types
+export const sql :postgres.Sql<{}> = postgres(ENV.DATABASE_URL, {
   prepare: false,
 });
 

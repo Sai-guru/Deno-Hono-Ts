@@ -1,18 +1,16 @@
 import { Hono } from "hono";
 import { register, login } from "../services/auth.service.ts";
 import { setCookie } from "hono/cookie";
-
+import type { Context } from "hono";
 export const authController = new Hono();
 
 // @register
-export const registerController = async (data) => {
+export const registerController = async (data : Context) => {
   try {
-    console.log("Register request received");
+   
     const { email, password } = await data.req.json();
-    console.log("Email:", email);
-
     const newUser = await register(email, password);
-    console.log("Registration successful");
+    
     return data.json({ message: "User registered", user: newUser }, 201);
   } catch (error) {
     console.error("Registration controller error:", error);
@@ -21,18 +19,14 @@ export const registerController = async (data) => {
 };
 
 // @login
-export const loginController = async (data) => {
+export const loginController = async (data : Context) => {
   try {
     const { email, password } = await data.req.json();
 
     const result = await login(email, password);
 
     // Set cookie (auto-managed by browser)
-    setCookie(data, "authToken", result.token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "Strict",
-      maxAge: 7200, // 2 hours
+    setCookie(data, "authToken", result.token, { httpOnly: true,secure: true,sameSite: "Strict",maxAge: 7200, // 2 hours
       path: "/",
     });
 
